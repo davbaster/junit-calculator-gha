@@ -6,13 +6,13 @@ pool:
 
 jobs:
 - job: AlmOctanePipelineStart
+  condition: always()
   displayName: 'AlmOctane Pipeline Start'
-  pool:
-    vmImage: 'ubuntu-latest'
   steps:
-  - script: echo "AlmOctane Pipeline Start"
-    displayName: 'Running Start Job'
-  continueOnError: true  # Ensures this job runs even if it fails
+  - task: octane-start-task@1
+    inputs:
+      OctaneServiceConnection: 'octaneCon2'
+      WorkspaceList: '4001'
 
 - job: BuildAndTest
   displayName: 'Build and Test'
@@ -41,12 +41,14 @@ jobs:
       mergeTestResults: true
 
 - job: AlmOctanePipelineEnd
-  displayName: 'AlmOctane Pipeline End'
-  pool:
-    vmImage: 'ubuntu-latest'
-  dependsOn: 'AlmOctanePipelineStart'  # Ensures this job runs after all other jobs
-  steps:
-  - script: echo "AlmOctane Pipeline End"
-    displayName: 'Running End Job'
-  continueOnError: true  # Ensures this job runs even if others fail
   condition: always()    # Ensures this job runs regardless of the pipeline status
+  dependsOn: 
+  - 'AlmOctanePipelineStart'
+  - 'BuildAndTest'
+  displayName: 'AlmOctane Pipeline End'
+  steps:
+  - task: octane-end-task@1
+    inputs:
+      OctaneServiceConnection: 'octaneCon2'
+      WorkspaceList: '4001'
+
