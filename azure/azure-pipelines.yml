@@ -44,7 +44,7 @@ jobs:
   displayName: 'AlmOctane Pipeline End'
   pool:
     vmImage: 'ubuntu-latest'
-  dependsOn: '*'  # Ensures this job runs after all other jobs
+  dependsOn: 'AlmOctanePipelineStart'  # Ensures this job runs after all other jobs
   steps:
   - script: echo "AlmOctane Pipeline End"
     displayName: 'Running End Job'
