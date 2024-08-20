@@ -6,13 +6,13 @@ pool:
   vmImage: 'ubuntu-latest'  # Using Ubuntu as the build agent OS
 
 steps:
-- task: Maven@3
+- task: Maven@4  # Updated to Maven@4
   inputs:
     mavenPomFile: 'pom.xml'  # Path to your pom.xml file
     goals: 'clean install'    # Clean the target directory and build the project
     options: '-B'             # Run in batch mode without interactive input
 
-- task: Maven@3
+- task: Maven@4  # Updated to Maven@4
   inputs:
     mavenPomFile: 'pom.xml'
     goals: 'test'             # Run the tests
