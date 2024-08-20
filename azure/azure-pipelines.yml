@@ -1,25 +1,52 @@
-# azure-pipelines.yml
 trigger:
 - main  # Triggers the pipeline on changes to the main branch
 
 pool:
   vmImage: 'ubuntu-latest'  # Using Ubuntu as the build agent OS
 
-steps:
-- task: Maven@4  # Updated to Maven@4
-  inputs:
-    mavenPomFile: 'pom.xml'  # Path to your pom.xml file
-    goals: 'clean install'    # Clean the target directory and build the project
-    options: '-B'             # Run in batch mode without interactive input
+jobs:
+- job: AlmOctanePipelineStart
+  displayName: 'AlmOctane Pipeline Start'
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - script: echo "AlmOctane Pipeline Start"
+    displayName: 'Running Start Job'
+  continueOnError: true  # Ensures this job runs even if it fails
 
-- task: Maven@4  # Updated to Maven@4
-  inputs:
-    mavenPomFile: 'pom.xml'
-    goals: 'test'             # Run the tests
-    options: '-B'
+- job: BuildAndTest
+  displayName: 'Build and Test'
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - task: Maven@4  # Assuming 'Maven@4' is the newer version available
+    displayName: 'Run Maven Clean Install'
+    inputs:
+      mavenPomFile: 'pom.xml'  # Path to your pom.xml file
+      goals: 'clean install'    # Clean the target directory and build the project
+      options: '-B'             # Run in batch mode without interactive input
 
-- task: PublishTestResults@2
-  inputs:
-    testResultsFiles: '**/TEST-*.xml'  # Publish the JUnit test results
-    testRunTitle: 'Calculator Unit Tests'
-    mergeTestResults: true
+  - task: Maven@4
+    displayName: 'Run Maven Tests'
+    inputs:
+      mavenPomFile: 'pom.xml'
+      goals: 'test'             # Run the tests
+      options: '-B'
+
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results'
+    inputs:
+      testResultsFiles: '**/TEST-*.xml'  # Publish the JUnit test results
+      testRunTitle: 'Calculator Unit Tests'
+      mergeTestResults: true
+
+- job: AlmOctanePipelineEnd
+  displayName: 'AlmOctane Pipeline End'
+  pool:
+    vmImage: 'ubuntu-latest'
+  dependsOn: '*'  # Ensures this job runs after all other jobs
+  steps:
+  - script: echo "AlmOctane Pipeline End"
+    displayName: 'Running End Job'
+  continueOnError: true  # Ensures this job runs even if others fail
+  condition: always()    # Ensures this job runs regardless of the pipeline status
