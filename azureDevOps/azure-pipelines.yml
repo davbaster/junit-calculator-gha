@@ -5,7 +5,21 @@ pool:
   vmImage: 'ubuntu-latest'  # Using Ubuntu as the build agent OS
 
 jobs:
-
+- job: AlmOctanePipelineStart
+  condition: always()
+  displayName: 'AlmOctane Pipeline Start'
+  steps:
+  - task: octane-start-task@2
+    inputs:
+      OctaneServiceConnection: 'octaneCon2'
+      WorkspaceList: '1002'
+      CreatePipelineCheckbox: true
+  - task: octane-test-runner-start-task@1
+    inputs:
+      OctaneServiceConnection: 'octaneCon2'
+      WorkspaceList: '1002'
+      Framework: 'junit'
+      
 - job: BuildAndTest
   dependsOn:
     - AlmOctanePipelineStart
@@ -34,3 +48,14 @@ jobs:
       testRunTitle: 'Calculator Unit Tests'
       mergeTestResults: true
 
+- job: AlmOctanePipelineEnd
+  condition: always()    # Ensures this job runs regardless of the pipeline status
+  dependsOn: 
+  - 'AlmOctanePipelineStart'
+  - 'BuildAndTest'
+  displayName: 'AlmOctane Pipeline End'
+  steps:
+  - task: octane-end-task@2
+    inputs:
+      OctaneServiceConnection: 'octaneCon2'
+      WorkspaceList: '1002'
