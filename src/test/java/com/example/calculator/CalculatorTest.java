@@ -1,9 +1,9 @@
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import java.util.Random;
 
 public class CalculatorTest {
-
     private Calculator calculator;
 
     @Before
@@ -38,5 +38,19 @@ public class CalculatorTest {
     @Test(expected = IllegalArgumentException.class)
     public void testDivisionByZero() {
         calculator.divide(1.0, 0.0);
+    }
+
+    // New random pass/fail test
+    @Test
+    public void testAdditionRandomPassFail() {
+        Random random = new Random();
+        boolean pass = random.nextBoolean(); // Randomly returns true or false
+
+        if (!pass) {
+            fail("Test failed randomly.");
+        } else {
+            // Normal test logic
+            assertEquals(5.0, calculator.add(2.0, 3.0), 0.001);
+        }
     }
 }
