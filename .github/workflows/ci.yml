@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [requested, completed]
+  pull_request:
+    types: [opened, edited, reopened]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+      - name: Run JUnit tests
+        run: mvn test
+      - name: Log workflow execution parameters
+        run: |
+            echo "execution_parameter:: $(echo '${{ toJson(github.event.inputs) }}' | jq -c .)"
+
+  octane_integration:
+    needs: test
+    runs-on: ubuntu-latest
+    name: OctaneIntegration#${{github.event.action}}#${{github.event.workflow_run.id}}
+    steps:
+      - name: GitHub Actions ALM Octane Integration
+        uses: MicroFocus/alm-octane-github-actions-integration@v25.2.1
+        with:
+          octaneUrl:          ${{ vars.OCTANE_URL }}
+          octaneSharedSpace:  ${{ vars.OCTANE_SHARED_SPACE }}
+          octaneWorkspace:    ${{ vars.OCTANE_WORKSPACE }}
+          octaneClientId:     ${{ secrets.OCTANE_CLIENT_ID }}
+          octaneClientSecret: ${{ secrets.OCTANE_CLIENT_SECRET }}
+          githubToken:        ${{ secrets.GITHUB_TOKEN }}
+          serverBaseUrl:    https://github.com/davbaster/junit-calculator-gha
+          pipelineNamePattern: '${workflow_name}'
+          unitTestResultsGlobPattern: '**/target/surefire-reports/*.xml'
+          testingFramework: 'junit'
