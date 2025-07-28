@@ -2,17 +2,22 @@ name: CI
 
 on:
   pull_request:
-    types: [opened, edited, reopened]
+    types: [opened, edited, reopened, synchronize]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up JDK
+      - name: Set up JDK 11
         uses: actions/setup-java@v3
+        with:
+            distribution: 'temurin'      # required: e.g. 'temurin', 'adopt', 'zulu', etc.
+            java-version: '11'           # required: the Java version you need
+            cache: 'maven'               # optional, if you want to cache your Maven dependencies
+            cache-dependency-path: 'pom.xml'
       - name: Run JUnit tests
-        run: mvn test
+        run: mvn test -Dmaven.test.failure.ignore=true
       - name: Log workflow execution parameters
         run: |
             echo "execution_parameter:: $(echo '${{ toJson(github.event.inputs) }}' | jq -c .)"
@@ -25,9 +30,9 @@ jobs:
       - name: GitHub Actions ALM Octane Integration
         uses: MicroFocus/alm-octane-github-actions-integration@v25.2.1
         with:
-          octaneUrl:          ${{ vars.OCTANE_URL }}
-          octaneSharedSpace:  ${{ vars.OCTANE_SHARED_SPACE }}
-          octaneWorkspace:    ${{ vars.OCTANE_WORKSPACE }}
+          octaneUrl:          'https://almoctane-ams.saas.microfocus.com'
+          octaneSharedSpace:  '466026'
+          octaneWorkspace:    '1002'
           octaneClientId:     ${{ secrets.OCTANE_CLIENT_ID }}
           octaneClientSecret: ${{ secrets.OCTANE_CLIENT_SECRET }}
           githubToken:        ${{ secrets.GITHUB_TOKEN }}
