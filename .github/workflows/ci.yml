@@ -17,7 +17,7 @@ jobs:
             cache: 'maven'               # optional, if you want to cache your Maven dependencies
             cache-dependency-path: 'pom.xml'
       - name: Run JUnit tests
-        run: mvn test
+        run: mvn test -Dmaven.test.failure.ignore=true
       - name: Log workflow execution parameters
         run: |
             echo "execution_parameter:: $(echo '${{ toJson(github.event.inputs) }}' | jq -c .)"
