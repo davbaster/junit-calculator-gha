@@ -13,7 +13,7 @@ jobs:
         with:
             distribution: 'temurin'      # required: e.g. 'temurin', 'adopt', 'zulu', etc.
             java-version: '11'           # required: the Java version you need
-            cache: 'maven'               # optional, if you want to cache your Maven dependencies
+            #cache: 'maven'               # optional, if you want to cache your Maven dependencies
       - name: Run JUnit tests
         run: mvn test
       - name: Log workflow execution parameters
